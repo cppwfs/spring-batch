@@ -17,7 +17,12 @@
 package org.springframework.batch.core.repository.support;
 
 import java.lang.reflect.Field;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Types;
+
+import javax.batch.operations.BatchRuntimeException;
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
@@ -41,6 +46,8 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.MetaDataAccessException;
+import org.springframework.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.util.Assert;
@@ -58,6 +65,7 @@ import static org.springframework.batch.support.DatabaseType.SYBASE;
  * @author Lucas Ward
  * @author Dave Syer
  * @author Michael Minella
+ * @author Glenn Renfro
  */
 public class JobRepositoryFactoryBean extends AbstractJobRepositoryFactoryBean implements InitializingBean {
 
@@ -211,7 +219,7 @@ public class JobRepositoryFactoryBean extends AbstractJobRepositoryFactoryBean i
 	protected JobInstanceDao createJobInstanceDao() throws Exception {
 		JdbcJobInstanceDao dao = new JdbcJobInstanceDao();
 		dao.setJdbcTemplate(jdbcOperations);
-		dao.setJobIncrementer(incrementerFactory.getIncrementer(databaseType, tablePrefix + "JOB_SEQ"));
+		dao.setJobIncrementer(getIncrementer(this.tablePrefix + "JOB_SEQ"));
 		dao.setTablePrefix(tablePrefix);
 		dao.afterPropertiesSet();
 		return dao;
@@ -285,6 +293,49 @@ public class JobRepositoryFactoryBean extends AbstractJobRepositoryFactoryBean i
 			}
 		}
 
+		return result;
+	}
+
+	private DataFieldMaxValueIncrementer getIncrementer(String incrementerName ) {
+
+		DataFieldMaxValueIncrementer incrementer = null;
+		if (this.dataSource != null) {
+			String databaseType;
+			try {
+				databaseType = DatabaseType.fromMetaData(this.dataSource).name();
+			}
+			catch (MetaDataAccessException e) {
+				throw new IllegalStateException(e);
+			}
+			if (StringUtils.hasText(databaseType) && databaseType.equals("SQLSERVER")) {
+				if (!isSqlServerTableSequenceAvailable(incrementerName)) {
+					incrementer = new SqlServerSequenceMaxValueIncrementer(dataSource, incrementerName);
+				}
+			}
+		}
+		if(incrementer == null) {
+			incrementer = incrementerFactory.getIncrementer(databaseType, incrementerName);
+		}
+		return incrementer;
+	}
+
+	private boolean isSqlServerTableSequenceAvailable(String incrementerName) {
+		boolean result = false;
+		DatabaseMetaData metaData = null;
+		try {
+			metaData = dataSource.getConnection().getMetaData();
+			String[] types = { "TABLE" };
+			ResultSet tables = metaData.getTables(null, null, "%", types);
+			while (tables.next()) {
+				if (tables.getString("TABLE_NAME").equals(incrementerName)) {
+					result = true;
+					break;
+				}
+			}
+		}
+		catch (SQLException sqe) {
+			throw new BatchRuntimeException(sqe.getMessage());
+		}
 		return result;
 	}
 

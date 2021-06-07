@@ -4,6 +4,7 @@
 
 buildscript {
 	repositories {
+		mavenLocal()
 		mavenCentral()
 		maven { url 'https://plugins.gradle.org/m2/' }
 		maven { url 'https://repo.spring.io/plugins-release' }
@@ -21,6 +22,7 @@ plugins {
 	id 'org.asciidoctor.jvm.pdf' version '3.1.0'
 	id 'org.asciidoctor.jvm.gems' version '3.1.0'
 	id 'org.asciidoctor.jvm.convert' version '3.1.0'
+	id 'maven-publish'
 }
 
 ext {
@@ -38,6 +40,7 @@ allprojects {
 	group = 'org.springframework.batch'
 
 	repositories {
+		mavenLocal()
 		mavenCentral()
 		maven { url 'https://repo.spring.io/libs-snapshot' }
 		maven { url 'https://repo.spring.io/libs-milestone' }
