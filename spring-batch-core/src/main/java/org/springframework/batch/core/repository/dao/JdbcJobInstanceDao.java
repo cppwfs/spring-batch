@@ -300,20 +300,6 @@ JobInstanceDao, InitializingBean {
 	 * Setter for {@link DataFieldMaxValueIncrementer} to be used when
 	 * generating primary keys for {@link JobInstance} instances.
 	 *
-	 * @param jobIncrementer
-	 *            the {@link DataFieldMaxValueIncrementer}
-	 *
-	 * @deprecated as of v5.0 in favor of using the {@link setJobInstanceIncrementer}
-	 */
-	@Deprecated
-	public void setJobIncrementer(DataFieldMaxValueIncrementer jobIncrementer) {
-		this.setJobInstanceIncrementer(jobIncrementer);
-	}
-
-	/**
-	 * Setter for {@link DataFieldMaxValueIncrementer} to be used when
-	 * generating primary keys for {@link JobInstance} instances.
-	 *
 	 * @param jobInstanceIncrementer the {@link DataFieldMaxValueIncrementer}
 	 *
 	 * @since 5.0

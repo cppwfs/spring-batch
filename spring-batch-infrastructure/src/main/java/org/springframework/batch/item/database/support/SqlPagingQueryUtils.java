@@ -61,36 +61,6 @@ public class SqlPagingQueryUtils {
 
 	/**
 	 * Generate SQL query string using a LIMIT clause
-	 * 
-	 * @param provider {@link AbstractSqlPagingQueryProvider} providing the
-	 * implementation specifics
-	 * @param remainingPageQuery is this query for the remaining pages (true) as
-	 * opposed to the first page (false)
-	 * @param limitClause the implementation specific limit clause to be used
-	 * @return the generated query
-	 * @deprecated in favor of {@link #generateLimitGroupedSqlQuery(AbstractSqlPagingQueryProvider, java.lang.String)}
-	 */
-	@Deprecated
-	public static String generateLimitGroupedSqlQuery(AbstractSqlPagingQueryProvider provider, boolean remainingPageQuery,
-			String limitClause) {
-		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT * ");
-		sql.append(" FROM (");
-		sql.append("SELECT ").append(provider.getSelectClause());
-		sql.append(" FROM ").append(provider.getFromClause());
-		sql.append(provider.getWhereClause() == null ? "" : " WHERE " + provider.getWhereClause());
-		buildGroupByClause(provider, sql);
-		sql.append(") AS MAIN_QRY ");
-		sql.append("WHERE ");
-		buildSortConditions(provider, sql);
-		sql.append(" ORDER BY ").append(buildSortClause(provider));
-		sql.append(" " + limitClause);
-
-		return sql.toString();
-	}
-
-	/**
-	 * Generate SQL query string using a LIMIT clause
 	 *
 	 * @param provider {@link AbstractSqlPagingQueryProvider} providing the
 	 * implementation specifics
