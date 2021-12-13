@@ -1,0 +1,51 @@
+= Basic Tasklet Sample
+
+Launches 2 jobs each launching 1 tasklet.
+
+== Requirements:
+
+* Java 17 or Above
+
+== Build
+
+[source,shell,indent=2]
+----
+mvn clean package
+----
+
+== Execute
+
+=== H2 Data Store
+To launch the application using an H2 data store execute the following:
+[source,shell,indent=2]
+----
+java -jar tasklet-sample-app-5.0.0-SNAPSHOT-jar-with-dependencies.jar
+----
+
+=== Postgresql Data Store
+In this sample we have included the Postgresql drivers, so you can launch this sample using a PostgresQL DB.
+To launch the application execute the following:
+[source,shell,indent=2]
+----
+export spring_datasource_url=jdbc:postgresql://localhost:5432/<your db>
+export spring_datasource_username=<your user id>
+export spring_datasource_password=<your password>
+export spring_datasource_driverClassName=org.postgresql.Driver
+java -jar tasklet-sample-app-5.0.0-SNAPSHOT-jar-with-dependencies.jar
+----
+
+=== Other Data Store
+To launch the application using another datastore add the data store drivers to the pom.xml.
+Then export the following variables to your environment:
+
+* `spring_datasource_url`
+* `spring_datasource_driverClassName`
+* `spring_datasource_password`
+* `spring_datasource_username`
+
+Once complete launch the application as follows:
+
+[source,shell,indent=2]
+----
+java -jar tasklet-sample-app-5.0.0-SNAPSHOT-jar-with-dependencies.jar
+----
