@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 
 /**
  * {@link Configuration} for establishing the jobs required to launch the tasklets.
@@ -35,6 +36,7 @@ import org.springframework.context.annotation.Import;
  * @author Glenn Renfro
  */
 @EnableBatchProcessing
+@Profile("!xml")
 @Import(DataSourceConfiguration.class)
 @Configuration
 public class BatchConfiguration {
@@ -49,14 +51,7 @@ public class BatchConfiguration {
 	public Job job1() {
 		return jobBuilderFactory.get("job1")
 				.start(stepBuilderFactory.get("job1step1")
-						.tasklet(new Tasklet() {
-							@Override
-							public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)
-									throws Exception {
-								System.out.println("Tasklet One");
-								return RepeatStatus.FINISHED;
-							}
-						})
+						.tasklet(new SampleTasklet())
 						.build())
 				.build();
 	}
@@ -65,14 +60,7 @@ public class BatchConfiguration {
 	public Job job2() {
 		return jobBuilderFactory.get("job2")
 				.start(stepBuilderFactory.get("job2step1")
-						.tasklet(new Tasklet() {
-							@Override
-							public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)
-									throws Exception {
-								System.out.println("Tasklet Two");
-								return RepeatStatus.FINISHED;
-							}
-						})
+						.tasklet(new SampleTasklet())
 						.build())
 				.build();
 	}

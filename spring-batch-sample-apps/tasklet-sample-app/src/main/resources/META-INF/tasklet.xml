@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+	<!--
+		The tasklet used in this job does nothing. The sample shows how to use
+		a method invoking adapter and also how to configure step scope with
+		non-default settings. Proxy target class (true) is needed because the
+		target method is not defined in an interface.
+	-->
+
+	<bean id="jobRepository" class="org.springframework.batch.core.repository.support.JobRepositoryFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="databaseType" value="h2" />
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
+	<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+	</bean>
+
+	<job id="sampleJob" xmlns="http://www.springframework.org/schema/batch">
+		<!-- this step tests the usage of MethodInvokingTaskletAdapter declared as a bean -->
+		<step id="step1-xml" next="step2-xml">
+			<tasklet ref="task" method="doSomething" />
+		</step>
+
+		<!-- this step tests the shortcut version that automatically wraps a bean
+			 in a MethodInvokingTaskletAdapter -->
+		<step id="step2-xml">
+			<tasklet ref="task" method="doSomething" />
+		</step>
+	</job>
+
+	<bean id="task" class="io.spring.taskletsampleapp.configuration.SampleTasklet" />
+
+	<jdbc:embedded-database type="H2" id="dataSource">
+        <jdbc:script location="org/springframework/batch/core/schema-drop-h2.sql" />
+        <jdbc:script location="org/springframework/batch/core/schema-h2.sql" />
+    </jdbc:embedded-database>
+</beans>
